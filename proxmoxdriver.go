@@ -952,13 +952,16 @@ func (d *Driver) Create() error {
 	}
 
 	switch d.ProvisionStrategy {
+	case "clone":
+		if len(d.GuestPassword) > 0 {
+			return d.prepareSSHWithPassword()
+		}
+		return nil
 	case "cdrom":
 		if len(d.GuestPassword) > 0 {
 			return d.prepareSSHWithPassword()
 		}
 		return nil
-	case "clone":
-		fallthrough
 	default:
 		return nil
 	}
