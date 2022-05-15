@@ -800,6 +800,7 @@ func (d *Driver) Create() error {
 			Newid: d.VMID,
 			Name:  d.BaseDriver.MachineName,
 			Pool:  d.Pool,
+			Target: node,
 		}
 
 		switch d.CloneFull {
@@ -819,12 +820,17 @@ func (d *Driver) Create() error {
 
 		d.debugf("cloning template id '%s' as vmid '%s'", d.CloneVMID, clone.Newid)
 
-		taskid, err := d.driver.NodesNodeQemuVMIDClonePost(node, d.CloneVMID, &clone)
+		nodeSource, err := d.driver.ClusterVMIDNodeGet(d.CloneVMID)
 		if err != nil {
 			return err
 		}
 
-		err = d.driver.WaitForTaskToComplete(node, taskid)
+		taskid, err := d.driver.NodesNodeQemuVMIDClonePost(nodeSource, d.CloneVMID, &clone)
+		if err != nil {
+			return err
+		}
+
+		err = d.driver.WaitForTaskToComplete(nodeSource, taskid)
 		if err != nil {
 			return err
 		}
@@ -881,7 +887,7 @@ func (d *Driver) Create() error {
 
 		// append newly minted ssh key to existing (if any)
 		d.debugf("retrieving existing cloud-init sshkeys from vmid '%s'", d.VMID)
-		config, err := d.driver.GetConfig(node, d.CloneVMID)
+		config, err := d.driver.GetConfig(nodeSource, d.CloneVMID)
 		if err != nil {
 			return err
 		}

@@ -468,6 +468,7 @@ type NodesNodeQemuVMIDClonePostParameter struct {
 	Full    string // Create a full copy of all disks.
 	Storage string // Target storage for full clone.
 	Format  string // Target format for file storage. Only valid for full clone.
+	Target  string // Target node. Only allowed if the original VM is on shared storage.
 }
 
 // NodesNodeQemuVMIDClonePost access the API
